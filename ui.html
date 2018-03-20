@@ -14,13 +14,13 @@
 
 <body>
     <div id="app">
-        <v-app>
+        <v-app dark>
             <v-navigation-drawer fixed :clipped="clipped" v-model="drawer" app>
                 <menu-component v-if="definition!==null" :subjects="definition.tags"></menu-component>
             </v-navigation-drawer>
             <v-toolbar fixed app :clipped-left="clipped">
                 <v-toolbar-side-icon @click.native.stop="drawer = !drawer"></v-toolbar-side-icon>
-                <v-toolbar-title v-text="title"></v-toolbar-title>
+                <v-toolbar-title v-text="title" @click="$router.push({name:'Overview'})"></v-toolbar-title>
                 <v-spacer></v-spacer>
             </v-toolbar>
             <main>
@@ -34,7 +34,7 @@
     </div>
     <template id="menu">
         <v-list v-if="subjects!==null">
-            <v-list-tile :value="$router.currentRoute.params.subject===subject.name" v-for="(subject, i) in subjects" :key="subject.name" @click="$router.push({name: 'List', params: {subject: subject.name}})">
+            <v-list-tile :value="$route.params.subject===subject.name" v-for="(subject, i) in subjects" :key="subject.name" @click="$router.push({name: 'List', params: {subject: subject.name}})">
                 <v-list-tile-action>
                     <v-icon light>storage</v-icon>
                 </v-list-tile-action>
@@ -46,10 +46,15 @@
     </template>
     <template id="overview">
         <v-container>
-            <h1>All of your API Tables</h1>
-            <v-card v-for="subject in subjects" :key="subject.name" @click="$router.push({name: 'List', params: {subject: subject.name}})">
-                <v-card-title v-text="subject.name"></v-card-title>
-            </v-card>
+            <h1>All of the Tables in your Database</h1>
+            <v-list-tile v-for="(subject, i) in subjects" :key="subject.name" @click="$router.push({name: 'List', params: {subject: subject.name}})">
+                <v-list-tile-action>
+                    <v-icon light>storage</v-icon>
+                </v-list-tile-action>
+                <v-list-tile-content>
+                    <v-list-tile-title v-text="subject.name"></v-list-tile-title>
+                </v-list-tile-content>
+            </v-list-tile>
         </v-container>
     </template>
     <template id="list">
@@ -519,7 +524,7 @@
     var router = new VueRouter({
         linkActiveClass: 'active',
         routes: [
-            { path: '/', component: Overview },
+            { path: '/', component: Overview, name: 'Overview' },
             { path: '/:subject/add', component: Add, name: 'Add' },
             { path: '/:subject/edit/:id', component: Edit, name: 'Edit' },
             { path: '/:subject/delete/:id', component: Delete, name: 'Delete' },
@@ -540,8 +545,7 @@
                 ],
                 miniVariant: false,
                 right: true,
-                rightDrawer: false,
-                title: 'VUE-CRUD-UI'
+                rightDrawer: false
             };
         },
         created: function () {
@@ -555,6 +559,11 @@
             }).catch(function (error) {
                 console.log(error);
             });
+        },
+        computed: {
+            title: function () {
+                return this.$route.params.subject || 'VUE-CRUD-UI'
+            }
         }
     }).$mount('#app');
     </script>
